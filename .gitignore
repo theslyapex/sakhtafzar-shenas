@@ -8,4 +8,8 @@
 .externalNativeBuild
 .cxx
 *.apk
-*.aab
+
+# Local Android signing material
+*.jks
+*.keystore
+*.p12
