@@ -73,11 +73,8 @@ fun CameraDiagnosticsScreen(onBack: () -> Unit, onOpenLiveTest: () -> Unit, modi
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("بررسی تخصصی دوربین", color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                TextButton(onClick = onBack) { Text("بازگشت", color = CyanAccent) }
-            }
+            HardwarePageTopBar(onBack)
+            HardwareSectionHeading("بررسی تخصصی دوربین")
             Text("اطلاعات از رابط Camera2 خود اندروید و مشخصات اعلام‌شده توسط سازنده خوانده می‌شود.",
                 color = TextSecondary, style = MaterialTheme.typography.bodySmall)
             TextButton(onClick = onOpenLiveTest) {
@@ -118,8 +115,9 @@ fun CameraDiagnosticsScreen(onBack: () -> Unit, onOpenLiveTest: () -> Unit, modi
 private fun CameraCard(report: CameraReport) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDark)
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+            border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color.White.copy(alpha = 0.055f))
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(11.dp)) {
             Text(report.facing, color = CyanAccent, style = MaterialTheme.typography.titleMedium,
@@ -165,7 +163,7 @@ private fun CameraCard(report: CameraReport) {
 private fun SummaryCard(title: String, lines: List<String>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = SurfaceDark)
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

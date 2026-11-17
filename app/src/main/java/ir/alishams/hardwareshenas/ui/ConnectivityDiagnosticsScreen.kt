@@ -78,14 +78,11 @@ fun ConnectivityDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modif
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
-            Button(
-                onClick = onBack,
-                colors = ButtonDefaults.buttonColors(containerColor = SurfaceDark, contentColor = CyanAccent)
-            ) { Text("بازگشت به داشبورد") }
+            HardwarePageTopBar(onBack)
         }
         item {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("ارتباطات و شبکه", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                HardwareSectionHeading("ارتباطات و شبکه")
                 Text("وضعیت اتصال فعال و قابلیت‌های ارتباطی دستگاه از رابط‌های استاندارد Android خوانده می‌شود.", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
             }
         }
@@ -132,8 +129,9 @@ fun ConnectivityDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modif
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceDark)
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+            border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color.White.copy(alpha = 0.055f))
             ) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("حریم خصوصی", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
