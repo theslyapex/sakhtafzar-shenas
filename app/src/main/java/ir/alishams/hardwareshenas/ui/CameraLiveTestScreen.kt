@@ -138,12 +138,13 @@ fun CameraLiveTestScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             Box(Modifier.fillMaxWidth().height(330.dp).background(SurfaceDark, RoundedCornerShape(20.dp))) {
                 AndroidView(
                     factory = { ctx ->
-                        PreviewView(ctx).apply {
-                            scaleType = PreviewView.ScaleType.FILL_CENTER
-                            implementationMode = PreviewView.ImplementationMode.COMPATIBLE
-                            setOnTouchListener { view, event ->
+                        PreviewView(ctx).also { view ->
+                            previewView = view
+                            view.scaleType = PreviewView.ScaleType.FILL_CENTER
+                            view.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                            view.setOnTouchListener { _, event ->
                                 if (event.action == MotionEvent.ACTION_UP) {
-                                    val point = previewView?.meteringPointFactory?.createPoint(event.x, event.y)
+                                    val point = view.meteringPointFactory.createPoint(event.x, event.y)
                                     val activeCamera = cameraState.value
                                     if (point != null && activeCamera != null) {
                                         val action = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE)
@@ -153,7 +154,7 @@ fun CameraLiveTestScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                                     }
                                 }
                                 true
-                            }.also { previewView = it }
+                            }
                         }
                     },
                     modifier = Modifier.fillMaxSize()
