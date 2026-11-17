@@ -65,7 +65,7 @@ fun BatteryDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
             val temp = intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)?.takeIf { it >= 0 }?.div(10f)
             val voltage = intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1)?.takeIf { it > 0 }
             val charge = manager.readProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)?.let { it / 1000f }
-            val current = manager.readProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)?.let { it / 1000f }
+            val current = manager.readSignedProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)?.let { it / 1000f }
             val energy = manager.readLongProperty(BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER)?.takeIf { it > 0L }?.div(1_000_000_000f)
             val cycles = if (Build.VERSION.SDK_INT >= 34) {
                 manager.readProperty(BatteryManager.BATTERY_PROPERTY_CYCLE_COUNT)
@@ -164,6 +164,9 @@ private fun BatteryCard(title: String, rows: List<Pair<String, String>>) {
 
 private fun BatteryManager.readProperty(property: Int): Int? =
     runCatching { getIntProperty(property).takeIf { it != Int.MIN_VALUE && it >= 0 } }.getOrNull()
+
+private fun BatteryManager.readSignedProperty(property: Int): Int? =
+    runCatching { getIntProperty(property).takeIf { it != Int.MIN_VALUE } }.getOrNull()
 
 private fun BatteryManager.readLongProperty(property: Int): Long? =
     runCatching { getLongProperty(property).takeIf { it != Long.MIN_VALUE } }.getOrNull()
