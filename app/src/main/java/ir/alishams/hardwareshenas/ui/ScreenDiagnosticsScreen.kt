@@ -158,7 +158,7 @@ fun ScreenDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 Text("آزمون لمس چندنقطه‌ای", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                 Text("انگشت‌ها را هم‌زمان روی محدوده زیر قرار دهید و حرکت دهید.", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
                 Box(
-                    modifier = Modifier.fillMaxWidth().aspectRatio(1.5f)
+                    modifier = Modifier.fillMaxWidth().height(190.dp)
                         .background(SurfaceDark, RoundedCornerShape(14.dp))
                         .border(1.dp, CyanAccent.copy(alpha = 0.7f), RoundedCornerShape(14.dp))
                         .pointerInteropFilter { event ->
