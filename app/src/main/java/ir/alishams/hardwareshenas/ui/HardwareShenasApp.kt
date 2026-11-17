@@ -62,6 +62,7 @@ fun HardwareShenasApp() {
     var showScreenDiagnostics by remember { mutableStateOf(false) }
     var showConnectivity by remember { mutableStateOf(false) }
     var showCameraDiagnostics by remember { mutableStateOf(false) }
+    var showCameraLiveTest by remember { mutableStateOf(false) }
     val snapshot = remember { DeviceInfoReader(context).readSnapshot() }
     val details = remember { HardwareDetailsReader(context).read() }
     val usedRam = (details.memory.totalBytes - details.memory.availableBytes).coerceAtLeast(0L)
@@ -91,7 +92,13 @@ fun HardwareShenasApp() {
         } else if (showConnectivity) {
             ConnectivityDiagnosticsScreen(onBack = { showConnectivity = false }, modifier = Modifier.padding(padding))
         } else if (showCameraDiagnostics) {
-            CameraDiagnosticsScreen(onBack = { showCameraDiagnostics = false }, modifier = Modifier.padding(padding))
+            CameraDiagnosticsScreen(
+                onBack = { showCameraDiagnostics = false },
+                onOpenLiveTest = { showCameraLiveTest = true },
+                modifier = Modifier.padding(padding)
+            )
+        } else if (showCameraLiveTest) {
+            CameraLiveTestScreen(onBack = { showCameraLiveTest = false }, modifier = Modifier.padding(padding))
         } else {
         LazyColumn(
             modifier = Modifier

@@ -37,3 +37,10 @@ These checks are diagnostic aids. Pixel defects and color accuracy require visua
 - Lists representative JPEG photo and MediaRecorder video output sizes when the device reports them.
 - Metadata-only: no camera preview, photo, or video is captured, and the screen does not request the CAMERA runtime permission.
 - Camera metadata and output sizes are manufacturer-reported capabilities. Missing values are shown as unavailable rather than inferred.
+
+
+## Live camera test
+
+- Optional CameraX preview for front and rear cameras, only after the user explicitly grants the CAMERA permission.
+- Tap-to-focus uses CameraX focus/metering where supported; torch toggle is shown only when the selected camera reports a flash unit.
+- Preview-only: this test does not capture, save, or upload photos or videos.

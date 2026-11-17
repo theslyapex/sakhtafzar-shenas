@@ -63,7 +63,7 @@ private data class CameraReport(
 )
 
 @Composable
-fun CameraDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun CameraDiagnosticsScreen(onBack: () -> Unit, onOpenLiveTest: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     var reports by remember { mutableStateOf(readCameraReports(context)) }
 
@@ -80,6 +80,9 @@ fun CameraDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             }
             Text("اطلاعات از رابط Camera2 خود اندروید و مشخصات اعلام‌شده توسط سازنده خوانده می‌شود.",
                 color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+            TextButton(onClick = onOpenLiveTest) {
+                Text("آزمون زنده دوربین", color = CyanAccent)
+            }
             TextButton(onClick = { reports = readCameraReports(context) }) {
                 Text("به‌روزرسانی اطلاعات دوربین‌ها", color = CyanAccent)
             }
