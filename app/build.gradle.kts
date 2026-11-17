@@ -4,6 +4,12 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val stableKeystorePath = providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull
+val stableStorePassword = providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").orNull
+val stableKeyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").orNull
+val stableKeyPassword = providers.environmentVariable("ANDROID_KEY_PASSWORD").orNull
+val stableSigningConfigured = listOf(stableKeystorePath, stableStorePassword, stableKeyAlias, stableKeyPassword).all { !it.isNullOrBlank() }
+
 android {
     namespace = "ir.alishams.hardwareshenas"
     compileSdk = 36
@@ -16,18 +22,34 @@ android {
         versionName = "0.1.0"
     }
 
-    buildFeatures {
-        compose = true
+    signingConfigs {
+        if (stableSigningConfigured) {
+            create("stableDebug") {
+                storeFile = file(stableKeystorePath!!)
+                storePassword = stableStorePassword
+                keyAlias = stableKeyAlias
+                keyPassword = stableKeyPassword
+                storeType = "PKCS12"
+            }
+        }
     }
+
+    buildTypes {
+        getByName("debug") {
+            if (stableSigningConfigured) {
+                signingConfig = signingConfigs.getByName("stableDebug")
+            }
+        }
+    }
+
+    buildFeatures { compose = true }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    kotlinOptions { jvmTarget = "17" }
 }
 
 dependencies {
