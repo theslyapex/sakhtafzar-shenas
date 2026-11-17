@@ -50,6 +50,7 @@ fun HardwareShenasApp() {
     var showStorage by remember { mutableStateOf(false) }
     var showPhysicalTests by remember { mutableStateOf(false) }
     var showNetworkAdvanced by remember { mutableStateOf(false) }
+    var showHealthCenter by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
 
     val snapshot = remember { DeviceInfoReader(context).readSnapshot() }
@@ -57,7 +58,7 @@ fun HardwareShenasApp() {
     val usedRam = (details.memory.totalBytes - details.memory.availableBytes).coerceAtLeast(0L)
     val usedStorage = (details.storage.totalBytes - details.storage.availableBytes).coerceAtLeast(0L)
     val onHome = !(showSensors || showGpu || showPerformance || showBenchmark || showBattery ||
-        showScreenDiagnostics || showConnectivity || showCameraDiagnostics || showCameraLiveTest || showAbout || showStorage || showPhysicalTests || showNetworkAdvanced)
+        showScreenDiagnostics || showConnectivity || showCameraDiagnostics || showCameraLiveTest || showAbout || showStorage || showPhysicalTests || showNetworkAdvanced || showHealthCenter)
     BackHandler(enabled = !onHome) {
         when {
             showCameraLiveTest -> showCameraLiveTest = false
@@ -73,6 +74,7 @@ fun HardwareShenasApp() {
             showConnectivity -> showConnectivity = false
             showPhysicalTests -> showPhysicalTests = false
             showNetworkAdvanced -> showNetworkAdvanced = false
+            showHealthCenter -> showHealthCenter = false
         }
     }
 
@@ -137,6 +139,7 @@ fun HardwareShenasApp() {
             showStorage -> StorageDiagnosticsScreen(onBack = { showStorage = false }, modifier = Modifier.padding(padding))
             showPhysicalTests -> PhysicalTestsScreen(onBack = { showPhysicalTests = false }, modifier = Modifier.padding(padding))
             showNetworkAdvanced -> NetworkAdvancedScreen(onBack = { showNetworkAdvanced = false }, modifier = Modifier.padding(padding))
+            showHealthCenter -> DeviceHealthCenterScreen(onBack = { showHealthCenter = false }, modifier = Modifier.padding(padding))
             showCameraLiveTest -> CameraLiveTestScreen(onBack = { showCameraLiveTest = false }, modifier = Modifier.padding(padding))
             showCameraDiagnostics -> CameraDiagnosticsScreen(
                 onBack = { showCameraDiagnostics = false },
@@ -156,7 +159,8 @@ fun HardwareShenasApp() {
                     DashboardModule("ذخیره‌سازی", "${usedStorage.toStorageLabel()} استفاده‌شده", Icons.Rounded.FolderOpen, VioletAccent) { showStorage = true },
                     DashboardModule("بنچمارک", "سنجش عملکرد CPU و RAM", Icons.Rounded.Speed, Color(0xFFFFC46B)) { showBenchmark = true },
                     DashboardModule("آزمایش سخت‌افزار فیزیکی", "صدا، میکروفون، ویبره و فلش", Icons.Rounded.GraphicEq, CyanAccent) { showPhysicalTests = true },
-                    DashboardModule("آزمایش پیشرفته شبکه", "تأخیر اتصال و سرعت دانلود", Icons.Rounded.WifiTethering, BlueAccent) { showNetworkAdvanced = true }
+                    DashboardModule("آزمایش پیشرفته شبکه", "تأخیر اتصال و سرعت دانلود", Icons.Rounded.WifiTethering, BlueAccent) { showNetworkAdvanced = true },
+                    DashboardModule("مرکز سلامت دستگاه", "ارزیابی و گزارش PDF", Icons.Rounded.HealthAndSafety, CyanAccent) { showHealthCenter = true }
                 )
 
                 LazyColumn(
