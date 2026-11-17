@@ -92,12 +92,9 @@ fun SensorMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Button(
-                onClick = onBack,
-                colors = ButtonDefaults.buttonColors(containerColor = SurfaceDark, contentColor = CyanAccent)
-            ) { Text("بازگشت به داشبورد") }
+            HardwarePageTopBar(onBack)
             Spacer(Modifier.height(8.dp))
-            Text("پایش زنده سنسورها", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+            HardwareSectionHeading("پایش زنده سنسورها")
             Text("مقادیر واقعی حسگرها، در صورت پشتیبانی دستگاه", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
         }
         if (sensors.isEmpty()) {
@@ -152,8 +149,9 @@ fun SensorMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
 private fun SensorCard(content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDark)
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+            border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color.White.copy(alpha = 0.055f))
     ) {
         Column(Modifier.padding(16.dp), content = content)
     }

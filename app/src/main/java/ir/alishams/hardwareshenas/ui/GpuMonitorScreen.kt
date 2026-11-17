@@ -59,21 +59,19 @@ fun GpuMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val vulkan = remember { readVulkanSnapshot(context) }
 
     Column(
-        modifier = modifier.fillMaxSize().background(Midnight).padding(20.dp),
+        modifier = modifier.fillMaxSize().background(Midnight).padding(horizontal = 18.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Button(
-            onClick = onBack,
-            colors = ButtonDefaults.buttonColors(containerColor = SurfaceDark, contentColor = CyanAccent)
-        ) { Text("بازگشت به داشبورد") }
+        HardwarePageTopBar(onBack)
 
-        Text("پردازنده گرافیکی", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+        HardwareSectionHeading("پردازنده گرافیکی")
         Text("اطلاعات از طریق زمینه واقعی OpenGL دستگاه خوانده می‌شود.", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceDark)
+            shape = RoundedCornerShape(22.dp),
+            colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+            border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color.White.copy(alpha = 0.055f))
         ) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("مشخصات OpenGL ES", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
