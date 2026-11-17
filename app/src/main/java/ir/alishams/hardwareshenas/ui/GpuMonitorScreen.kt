@@ -83,7 +83,7 @@ fun GpuMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 Text("مشخصات OpenGL ES", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                 val info = gpu.value
                 if (info == null) {
-                    Text("در حال ایجاد زمینه گرافیکی و خواندن مشخصات…", color = TextSecondary)
+                    Text(if (gpuTimedOut.value) "پاسخی از درایور گرافیکی دریافت نشد؛ این بخش روی بعضی دستگاه‌ها محدود است." else "در حال ایجاد زمینه گرافیکی و خواندن مشخصات…", color = TextSecondary)
                 } else {
                     GpuRow("سازنده GPU", info.vendor ?: "گزارش نشد")
                     GpuRow("مدل / Renderer", info.renderer ?: "گزارش نشد")
