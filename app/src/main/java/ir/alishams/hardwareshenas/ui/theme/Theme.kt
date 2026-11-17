@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.text.TextDirection
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
