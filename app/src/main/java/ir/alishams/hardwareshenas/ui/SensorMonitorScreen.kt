@@ -112,7 +112,7 @@ fun SensorMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                     Text(sensor.vendor, color = TextSecondary, style = MaterialTheme.typography.labelSmall)
                     Spacer(Modifier.height(12.dp))
                     if (reading == null) {
-                        Text("در انتظار اولین نمونه‌برداری…", color = TextSecondary)
+                        Text("هنوز داده زنده‌ای از این حسگر دریافت نشده است", color = TextSecondary)
                     } else {
                         reading.values.forEachIndexed { index, value ->
                             val axis = when (index) {
