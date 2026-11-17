@@ -7,6 +7,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.AudioFormat
 import android.media.AudioRecord
+import android.media.AudioTrack
 import android.media.MediaRecorder
 import android.media.AudioAttributes
 import android.os.Build
@@ -29,6 +30,7 @@ import androidx.core.content.ContextCompat
 import ir.alishams.hardwareshenas.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.math.PI
 import kotlin.math.sin
@@ -41,6 +43,8 @@ fun PhysicalTestsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     var recording by remember { mutableStateOf(false) }
     var torchOn by remember { mutableStateOf(false) }
     var selectedCameraId by remember { mutableStateOf<String?>(null) }
+    var ejecting by remember { mutableStateOf(false) }
+    var ejectTrack by remember { mutableStateOf<AudioTrack?>(null) }
     val cameraManager = remember { context.getSystemService(Context.CAMERA_SERVICE) as CameraManager }
     val micPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) runMicTest(context, scope, { recording = it }, { status = it })
@@ -48,7 +52,7 @@ fun PhysicalTestsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     }
 
     DisposableEffect(Unit) {
-        onDispose { runCatching { selectedCameraId?.let { cameraManager.setTorchMode(it, false) } } }
+        onDispose { runCatching { selectedCameraId?.let { cameraManager.setTorchMode(it, false) } }; runCatching { ejectTrack?.stop(); ejectTrack?.release() } }
     }
 
     Column(
@@ -67,6 +71,50 @@ fun PhysicalTestsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 status = result
             }
         }
+
+        Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = SurfaceDark)) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("خارج‌سازی آب از بلندگو", color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium)
+                Text("پخش فرکانس پایین ۱۶۵ هرتز برای کمک به حرکت قطرات آب از خروجی بلندگو. گوشی را طوری نگه دار که خروجی بلندگو رو به پایین باشد.",
+                    color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                Button(onClick = {
+                    if (!ejecting) {
+                        ejecting = true
+                        status = "در حال اجرای خارج‌سازی آب"
+                        scope.launch {
+                            val track = withContext(Dispatchers.IO) { createEjectTrack() }
+                            if (track == null) {
+                                ejecting = false
+                                status = "پخش فرکانس انجام نشد"
+                            } else {
+                                ejectTrack = track
+                                track.play()
+                                delay(30000)
+                                if (ejectTrack === track) {
+                                    runCatching { track.stop(); track.release() }
+                                    ejectTrack = null
+                                    ejecting = false
+                                    status = "چرخه ۳۰ ثانیه‌ای تمام شد"
+                                }
+                            }
+                        }
+                    } else {
+                        ejectTrack?.let { track -> runCatching { track.stop(); track.release() } }
+                        ejectTrack = null
+                        ejecting = false
+                        status = "آزمون متوقف شد"
+                    }
+                }, modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = CyanAccent, contentColor = Midnight)) {
+                    Text(if (ejecting) "توقف فوری" else "شروع چرخه ۳۰ ثانیه‌ای")
+                }
+                Text("با صدای متوسط شروع کن. اگر گوشی خیس شده، آن را شارژ نکن و از سشوار یا هوای فشرده استفاده نکن. این ابزار خشک‌شدن داخل گوشی را تضمین نمی‌کند.",
+                    color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+            }
+        }
+
         PhysicalTestCard("میکروفون", "ضبط کوتاه محلی برای بررسی دریافت صدا. فایل ضبط‌شده ذخیره یا ارسال نمی‌شود.") {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                 runMicTest(context, scope, { recording = it }, { status = it })
@@ -118,6 +166,26 @@ private fun PhysicalTestCard(title: String, description: String, action: () -> U
             }
         }
     }
+}
+
+private fun createEjectTrack(): AudioTrack? {
+    val rate = 44100
+    val hz = 165
+    val samples = ShortArray(rate) { i ->
+        (sin(2.0 * PI * hz * i / rate) * Short.MAX_VALUE * 0.18).toInt().toShort()
+    }
+    return try {
+        AudioTrack.Builder()
+            .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+            .setAudioFormat(AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                .setSampleRate(rate).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
+            .setBufferSizeInBytes(samples.size * 2)
+            .setTransferMode(AudioTrack.MODE_STATIC).build().also { track ->
+                track.write(samples, 0, samples.size)
+                track.setLoopPoints(0, samples.size - 1, -1)
+            }
+    } catch (_: Exception) { null }
 }
 
 private fun playTone(): String {
