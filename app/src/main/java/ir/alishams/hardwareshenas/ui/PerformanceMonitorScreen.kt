@@ -97,20 +97,18 @@ fun PerformanceMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
 
     val current = snapshot.value
     Column(
-        modifier = modifier.fillMaxSize().background(Midnight).padding(20.dp),
+        modifier = modifier.fillMaxSize().background(Midnight).padding(horizontal = 18.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Button(
-            onClick = onBack,
-            colors = ButtonDefaults.buttonColors(containerColor = SurfaceDark, contentColor = CyanAccent)
-        ) { Text("بازگشت به داشبورد") }
-        Text("پایش زنده عملکرد", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+        HardwarePageTopBar(onBack)
+        HardwareSectionHeading("پایش زنده عملکرد")
         Text("به‌روزرسانی خودکار هر یک ثانیه، تا وقتی این صفحه باز است.", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceDark)
+            shape = RoundedCornerShape(22.dp),
+            colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+            border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color.White.copy(alpha = 0.055f))
         ) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("بار پردازنده", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
