@@ -56,6 +56,7 @@ fun HardwareShenasApp() {
     val context = LocalContext.current
     var showSensors by remember { mutableStateOf(false) }
     var showGpu by remember { mutableStateOf(false) }
+    var showPerformance by remember { mutableStateOf(false) }
     val snapshot = remember { DeviceInfoReader(context).readSnapshot() }
     val details = remember { HardwareDetailsReader(context).read() }
     val usedRam = (details.memory.totalBytes - details.memory.availableBytes).coerceAtLeast(0L)
@@ -74,6 +75,8 @@ fun HardwareShenasApp() {
             SensorMonitorScreen(onBack = { showSensors = false }, modifier = Modifier.padding(padding))
         } else if (showGpu) {
             GpuMonitorScreen(onBack = { showGpu = false }, modifier = Modifier.padding(padding))
+        } else if (showPerformance) {
+            PerformanceMonitorScreen(onBack = { showPerformance = false }, modifier = Modifier.padding(padding))
         } else {
         LazyColumn(
             modifier = Modifier
@@ -110,6 +113,9 @@ fun HardwareShenasApp() {
                     }
                     TextButton(onClick = { showGpu = true }) {
                         Text("بررسی پردازنده گرافیکی و Vulkan", color = CyanAccent, fontWeight = FontWeight.SemiBold)
+                    }
+                    TextButton(onClick = { showPerformance = true }) {
+                        Text("پایش زنده CPU و RAM", color = CyanAccent, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
