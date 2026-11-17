@@ -111,6 +111,11 @@ fun BatteryDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
                 Text(battery?.levelPercent?.let { "$it٪" } ?: "در حال خواندن…", color = CyanAccent, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Black)
                 Text("وضعیت: ${battery?.status?.let { batteryStatus(it) } ?: "نامشخص"}", color = MaterialTheme.colorScheme.onSurface)
                 Text("منبع تغذیه: ${battery?.plugged?.let { pluggedLabel(it) } ?: "نامشخص"}", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    "این عنوان بر اساس گزارش Android است. سیستم‌عامل همیشه نمی‌تواند پاوربانک را از آداپتور دیواری تشخیص دهد.",
+                    color = TextSecondary.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
         }
 
@@ -191,10 +196,10 @@ private fun batteryHealth(health: Int): String = when (health) {
     else -> "نامشخص"
 }
 
-private fun pluggedLabel(plugged: Int): String = when {
-    plugged and BatteryManager.BATTERY_PLUGGED_USB != 0 -> "USB"
-    plugged and BatteryManager.BATTERY_PLUGGED_AC != 0 -> "آداپتور برق"
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && plugged and BatteryManager.BATTERY_PLUGGED_WIRELESS != 0 -> "شارژ بی‌سیم"
-    plugged == 0 -> "بدون اتصال شارژر"
-    else -> "منبع نامشخص"
+private fun pluggedLabel(plugged: Int): String = when (plugged) {
+    BatteryManager.BATTERY_PLUGGED_USB -> "اتصال USB"
+    BatteryManager.BATTERY_PLUGGED_AC -> "منبع AC (طبق گزارش Android)"
+    BatteryManager.BATTERY_PLUGGED_WIRELESS -> "شارژ بی‌سیم"
+    0 -> "بدون اتصال شارژر"
+    else -> "منبع تغذیه خارجی، نوع نامشخص"
 }
