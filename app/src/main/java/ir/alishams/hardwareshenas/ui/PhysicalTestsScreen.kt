@@ -7,10 +7,8 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.AudioFormat
 import android.media.AudioRecord
-import android.media.AudioTrack
 import android.media.MediaRecorder
 import android.media.AudioAttributes
-import android.media.AudioTrack
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -184,9 +182,12 @@ private fun vibrate(context: Context): String = try {
     } else @Suppress("DEPRECATION") (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
     if (!vibrator.hasVibrator()) "موتور ویبره شناسایی نشد"
     else {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(VibrationEffect.createOneShot(350, VibrationEffect.DEFAULT_AMPLITUDE))
-        else @Suppress("DEPRECATION") vibrator.vibrate(350)
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(350)
+        }
         "فرمان لرزش ارسال شد. عملکرد ویبره را بررسی کن."
     }
 } 
