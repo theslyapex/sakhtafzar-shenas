@@ -26,11 +26,14 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -115,7 +118,7 @@ fun PerformanceMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("بار پردازنده", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                 Text(
-                    current?.cpuPercent?.let { String.format(Locale.getDefault(), "%.1f%%", it) } ?: "در حال نمونه‌برداری…",
+                    current?.cpuPercent?.let { String.format(Locale.getDefault(), "%.1f%%", it) } ?: "داده CPU در دسترس نیست",
                     color = CyanAccent,
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold
@@ -136,7 +139,7 @@ fun PerformanceMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
                 val total = current?.totalRamBytes
                 val percent = if (used != null && total != null && total > 0) used.toFloat() / total else 0f
                 Text(
-                    if (used != null && total != null) "${used.toPerfSize()} از ${total.toPerfSize()}" else "در حال خواندن اطلاعات…",
+                    if (used != null && total != null) "${used.toPerfSize()} / ${total.toPerfSize()}" else "در حال خواندن اطلاعات…",
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 androidx.compose.foundation.layout.Box(
@@ -193,7 +196,7 @@ private fun CpuHistoryChart(values: List<Float>) {
 private fun PerfRow(label: String, value: String) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, color = TextSecondary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-        Text(value, color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) { Text(value, color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f)) }
     }
 }
 
@@ -228,6 +231,6 @@ private fun thermalLabel(status: Int): String = when (status) {
 
 private fun Long.toPerfSize(): String {
     val mb = this / (1024.0 * 1024.0)
-    return if (mb >= 1024) String.format(Locale.getDefault(), "%.2f GB", mb / 1024.0)
-    else String.format(Locale.getDefault(), "%.0f MB", mb)
+    return if (mb >= 1024) String.format(Locale.US, "%.2f GB", mb / 1024.0)
+    else String.format(Locale.US, "%.0f MB", mb)
 }
