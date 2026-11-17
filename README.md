@@ -20,3 +20,12 @@
 
 ## اصول صحت داده
 اطلاعاتی که اندروید یا سازنده دستگاه در اختیار برنامه قرار نمی‌دهد، به‌عنوان مقدار قطعی نمایش داده نمی‌شوند. مقادیر تخمینی، محدودشده یا غیرقابل‌دسترسی باید از داده‌های اندازه‌گیری‌شده تفکیک شوند.
+
+
+## Display diagnostics
+
+- Full-screen solid-color sequence for visual inspection of stuck/dead pixels and panel uniformity.
+- Current and supported display refresh modes reported by Android.
+- Multi-touch test that records the maximum simultaneous pointer count observed.
+
+These checks are diagnostic aids. Pixel defects and color accuracy require visual inspection or external measurement; the app does not claim automatic pixel detection or colorimeter-grade calibration.
