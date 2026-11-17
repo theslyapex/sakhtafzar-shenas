@@ -1,5 +1,8 @@
 package ir.alishams.hardwareshenas.ui
 
+import android.content.Intent
+import android.net.Uri
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.activity.compose.BackHandler
@@ -117,6 +120,26 @@ fun HardwareShenasApp() {
                         onClick = { selectedTab = 2; showBenchmark = true },
                         icon = { Icon(Icons.Rounded.Speed, null) },
                         label = { Text("آزمایش‌ها") },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = CyanAccent, selectedTextColor = CyanAccent,
+                            indicatorColor = CyanAccent.copy(alpha = .12f),
+                            unselectedIconColor = TextSecondary, unselectedTextColor = TextSecondary
+                        )
+                    )
+
+                    NavigationBarItem(
+                        selected = selectedTab == 3,
+                        onClick = {
+                            selectedTab = 3
+                            runCatching {
+                                context.startActivity(
+                                    Intent(Intent.ACTION_VIEW, Uri.parse("https://alishams.ir/contact-center.html"))
+                                )
+                            }
+                            selectedTab = 0
+                        },
+                        icon = { Icon(Icons.Rounded.SupportAgent, null) },
+                        label = { Text("پشتیبانی") },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = CyanAccent, selectedTextColor = CyanAccent,
                             indicatorColor = CyanAccent.copy(alpha = .12f),
