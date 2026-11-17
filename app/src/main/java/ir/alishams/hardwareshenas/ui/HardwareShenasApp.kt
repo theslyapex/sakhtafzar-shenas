@@ -55,6 +55,7 @@ private data class DashboardModule(val title: String, val subtitle: String, val 
 fun HardwareShenasApp() {
     val context = LocalContext.current
     var showSensors by remember { mutableStateOf(false) }
+    var showGpu by remember { mutableStateOf(false) }
     val snapshot = remember { DeviceInfoReader(context).readSnapshot() }
     val details = remember { HardwareDetailsReader(context).read() }
     val usedRam = (details.memory.totalBytes - details.memory.availableBytes).coerceAtLeast(0L)
@@ -71,6 +72,8 @@ fun HardwareShenasApp() {
     Scaffold(containerColor = Midnight) { padding ->
         if (showSensors) {
             SensorMonitorScreen(onBack = { showSensors = false }, modifier = Modifier.padding(padding))
+        } else if (showGpu) {
+            GpuMonitorScreen(onBack = { showGpu = false }, modifier = Modifier.padding(padding))
         } else {
         LazyColumn(
             modifier = Modifier
@@ -101,8 +104,13 @@ fun HardwareShenasApp() {
             }
             item { DeviceHero(snapshot) }
             item {
-                TextButton(onClick = { showSensors = true }) {
-                    Text("مشاهده پایش زنده سنسورها", color = CyanAccent, fontWeight = FontWeight.SemiBold)
+                Column {
+                    TextButton(onClick = { showSensors = true }) {
+                        Text("مشاهده پایش زنده سنسورها", color = CyanAccent, fontWeight = FontWeight.SemiBold)
+                    }
+                    TextButton(onClick = { showGpu = true }) {
+                        Text("بررسی پردازنده گرافیکی و Vulkan", color = CyanAccent, fontWeight = FontWeight.SemiBold)
+                    }
                 }
             }
             item {
