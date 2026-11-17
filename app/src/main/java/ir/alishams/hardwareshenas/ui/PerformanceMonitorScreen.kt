@@ -124,7 +124,7 @@ fun PerformanceMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
                     fontWeight = FontWeight.Bold
                 )
                 Text("نمودار ۶۰ نمونه اخیر", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
-                CpuHistoryChart(cpuHistory.toList())
+                if (cpuHistory.size < 2) Text("نمودار پس از دریافت نمونه‌های قابل‌خواندن CPU نمایش داده می‌شود.", color = TextSecondary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.height(110.dp)) else CpuHistoryChart(cpuHistory.toList())
             }
         }
 
