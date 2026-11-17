@@ -2,6 +2,7 @@ package ir.alishams.hardwareshenas.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,6 +46,7 @@ fun HardwareShenasApp() {
     var showConnectivity by remember { mutableStateOf(false) }
     var showCameraDiagnostics by remember { mutableStateOf(false) }
     var showCameraLiveTest by remember { mutableStateOf(false) }
+    var showAbout by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
 
     val snapshot = remember { DeviceInfoReader(context).readSnapshot() }
@@ -52,7 +54,21 @@ fun HardwareShenasApp() {
     val usedRam = (details.memory.totalBytes - details.memory.availableBytes).coerceAtLeast(0L)
     val usedStorage = (details.storage.totalBytes - details.storage.availableBytes).coerceAtLeast(0L)
     val onHome = !(showSensors || showGpu || showPerformance || showBenchmark || showBattery ||
-        showScreenDiagnostics || showConnectivity || showCameraDiagnostics || showCameraLiveTest)
+        showScreenDiagnostics || showConnectivity || showCameraDiagnostics || showCameraLiveTest || showAbout)
+    BackHandler(enabled = !onHome) {
+        when {
+            showCameraLiveTest -> showCameraLiveTest = false
+            showCameraDiagnostics -> showCameraDiagnostics = false
+            showAbout -> showAbout = false
+            showSensors -> showSensors = false
+            showGpu -> showGpu = false
+            showPerformance -> { showPerformance = false; selectedTab = 0 }
+            showBenchmark -> { showBenchmark = false; selectedTab = 0 }
+            showBattery -> showBattery = false
+            showScreenDiagnostics -> showScreenDiagnostics = false
+            showConnectivity -> showConnectivity = false
+        }
+    }
 
     Scaffold(
         containerColor = Midnight,
@@ -111,12 +127,13 @@ fun HardwareShenasApp() {
             showBattery -> BatteryDiagnosticsScreen(onBack = { showBattery = false }, modifier = Modifier.padding(padding))
             showScreenDiagnostics -> ScreenDiagnosticsScreen(onBack = { showScreenDiagnostics = false }, modifier = Modifier.padding(padding))
             showConnectivity -> ConnectivityDiagnosticsScreen(onBack = { showConnectivity = false }, modifier = Modifier.padding(padding))
+            showAbout -> AboutScreen(onBack = { showAbout = false }, modifier = Modifier.padding(padding))
+            showCameraLiveTest -> CameraLiveTestScreen(onBack = { showCameraLiveTest = false }, modifier = Modifier.padding(padding))
             showCameraDiagnostics -> CameraDiagnosticsScreen(
                 onBack = { showCameraDiagnostics = false },
                 onOpenLiveTest = { showCameraLiveTest = true },
                 modifier = Modifier.padding(padding)
             )
-            showCameraLiveTest -> CameraLiveTestScreen(onBack = { showCameraLiveTest = false }, modifier = Modifier.padding(padding))
             else -> {
                 val modules = listOf(
                     DashboardModule("پردازنده", "مشخصات، هسته‌ها و فرکانس", Icons.Rounded.Memory, CyanAccent) { showPerformance = true },
@@ -245,6 +262,28 @@ fun HardwareShenasApp() {
                             rows = details.sensors.take(6).map { it.name to it.vendor } +
                                 if (details.sensors.size > 6) listOf("سایر سنسورها" to "${details.sensors.size - 6} مورد دیگر") else emptyList()
                         )
+                    }
+
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth().clickable { showAbout = true },
+                            shape = RoundedCornerShape(22.dp),
+                            colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+                            border = BorderStroke(1.dp, CyanAccent.copy(alpha = .20f))
+                        ) {
+                            Row(
+                                Modifier.fillMaxWidth().padding(17.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(Icons.Rounded.Info, null, tint = CyanAccent, modifier = Modifier.size(26.dp))
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                    Text("درباره سخت‌افزار شناس", color = TextPrimary, fontWeight = FontWeight.Bold)
+                                    Text("معرفی برنامه و استودیو سازنده", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                                }
+                                Text("مشاهده", color = CyanAccent, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
                     }
 
                     item {
