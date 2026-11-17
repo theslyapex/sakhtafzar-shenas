@@ -25,7 +25,33 @@ jobs:
         with:
           gradle-version: "8.13"
 
+      - name: Restore stable signing keystore
+        if: github.event_name != 'pull_request'
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::Missing ANDROID_KEYSTORE_BASE64 repository secret."
+            exit 1
+          fi
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > app/hardware-shenas-upload.p12
+          test -s app/hardware-shenas-upload.p12
+
       - name: Build debug APK
+        if: github.event_name != 'pull_request'
+        env:
+          ANDROID_KEYSTORE_PATH: hardware-shenas-upload.p12
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_PASSWORD"
+          test -n "$ANDROID_KEY_ALIAS"
+          test -n "$ANDROID_KEY_PASSWORD"
+          gradle assembleDebug
+
+      - name: Build debug APK for pull requests
+        if: github.event_name == 'pull_request'
         run: gradle assembleDebug
 
       - name: Upload APK
