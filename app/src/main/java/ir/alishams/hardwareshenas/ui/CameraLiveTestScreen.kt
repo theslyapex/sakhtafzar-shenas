@@ -105,16 +105,14 @@ fun CameraLiveTestScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     }
 
     Column(
-        modifier = modifier.fillMaxSize().background(Midnight).padding(18.dp),
+        modifier = modifier.fillMaxSize().background(Midnight).padding(horizontal = 18.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            Text("آزمون زنده دوربین", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground)
-            TextButton(onClick = onBack) { Text("بازگشت", color = CyanAccent) }
-        }
+        HardwarePageTopBar(onBack)
+        HardwareSectionHeading("آزمون زنده دوربین")
         Text("پیش‌نمایش زنده، فوکوس لمسی و فلاش. هیچ تصویری ثبت یا ذخیره نمی‌شود.", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
         if (!hasPermission) {
-            Card(colors = CardDefaults.cardColors(containerColor = SurfaceDark), shape = RoundedCornerShape(18.dp)) {
+            Card(colors = CardDefaults.cardColors(containerColor = SurfaceDark), shape = RoundedCornerShape(22.dp), border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color.White.copy(alpha = 0.055f))) {
                 Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("دسترسی به دوربین لازم است", color = MaterialTheme.colorScheme.onSurface)
                     Text("فقط پس از تأیید تو، پیش‌نمایش زنده فعال می‌شود. این بخش عکس یا ویدئو نمی‌گیرد.", color = TextSecondary)
