@@ -67,9 +67,8 @@ fun BatteryDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
             val charge = manager.readProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)?.let { it / 1000f }
             val current = manager.readSignedProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)?.let { it / 1000f }
             val energy = manager.readLongProperty(BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER)?.takeIf { it > 0L }?.div(1_000_000_000f)
-            val cycles = if (Build.VERSION.SDK_INT >= 34) {
-                manager.readProperty(BatteryManager.BATTERY_PROPERTY_CYCLE_COUNT)
-            } else null
+            // Android's public BatteryManager API does not expose a portable cycle-count property.
+            val cycles: Int? = null
             data.value = BatterySnapshot(
                 levelPercent = percent,
                 status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1),
@@ -115,7 +114,7 @@ fun BatteryDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
         BatteryCard("سلامت و مشخصات", listOf(
             "وضعیت سلامت گزارش‌شده" to (battery?.health?.let { batteryHealth(it) } ?: "نامشخص"),
             "فناوری باتری" to (battery?.technology ?: "نامشخص"),
-            "تعداد چرخه شارژ" to (battery?.cycleCount?.takeIf { it >= 0 }?.toString() ?: "این دستگاه ارائه نمی‌کند")
+            "تعداد چرخه شارژ" to (battery?.cycleCount?.takeIf { it >= 0 }?.toString() ?: "از API عمومی Android قابل دریافت نیست")
         ))
         BatteryCard("اندازه‌گیری‌های الکتریکی", listOf(
             "ولتاژ" to (battery?.voltageMv?.let { String.format(Locale.US, "%.3f V", it / 1000.0) } ?: "نامشخص"),

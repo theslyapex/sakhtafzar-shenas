@@ -59,6 +59,7 @@ fun HardwareShenasApp() {
     var showPerformance by remember { mutableStateOf(false) }
     var showBenchmark by remember { mutableStateOf(false) }
     var showBattery by remember { mutableStateOf(false) }
+    var showScreenDiagnostics by remember { mutableStateOf(false) }
     val snapshot = remember { DeviceInfoReader(context).readSnapshot() }
     val details = remember { HardwareDetailsReader(context).read() }
     val usedRam = (details.memory.totalBytes - details.memory.availableBytes).coerceAtLeast(0L)
@@ -83,6 +84,8 @@ fun HardwareShenasApp() {
             BenchmarkScreen(onBack = { showBenchmark = false }, modifier = Modifier.padding(padding))
         } else if (showBattery) {
             BatteryDiagnosticsScreen(onBack = { showBattery = false }, modifier = Modifier.padding(padding))
+        } else if (showScreenDiagnostics) {
+            ScreenDiagnosticsScreen(onBack = { showScreenDiagnostics = false }, modifier = Modifier.padding(padding))
         } else {
         LazyColumn(
             modifier = Modifier
@@ -128,6 +131,9 @@ fun HardwareShenasApp() {
                     }
                     TextButton(onClick = { showBattery = true }) {
                         Text("تشخیص و سلامت باتری", color = CyanAccent, fontWeight = FontWeight.SemiBold)
+                    }
+                    TextButton(onClick = { showScreenDiagnostics = true }) {
+                        Text("آزمون صفحه‌نمایش و لمس", color = CyanAccent, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
