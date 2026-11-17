@@ -1,13 +1,16 @@
 package ir.alishams.hardwareshenas.ui.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import ir.alishams.hardwareshenas.R
 
 private val Estedad = FontFamily(
@@ -20,6 +23,32 @@ private val Estedad = FontFamily(
     Font(R.font.estedad, FontWeight.Bold),
     Font(R.font.estedad, FontWeight.ExtraBold),
     Font(R.font.estedad, FontWeight.Black)
+)
+
+private val HardwareTypography = Typography(
+    displayLarge = Typography().displayLarge.copy(fontFamily = Estedad, fontWeight = FontWeight.Black),
+    displayMedium = Typography().displayMedium.copy(fontFamily = Estedad, fontWeight = FontWeight.ExtraBold),
+    displaySmall = Typography().displaySmall.copy(fontFamily = Estedad, fontWeight = FontWeight.Bold),
+    headlineLarge = Typography().headlineLarge.copy(fontFamily = Estedad, fontWeight = FontWeight.ExtraBold),
+    headlineMedium = Typography().headlineMedium.copy(fontFamily = Estedad, fontWeight = FontWeight.Bold),
+    headlineSmall = Typography().headlineSmall.copy(fontFamily = Estedad, fontWeight = FontWeight.Bold),
+    titleLarge = Typography().titleLarge.copy(fontFamily = Estedad, fontWeight = FontWeight.Bold),
+    titleMedium = Typography().titleMedium.copy(fontFamily = Estedad, fontWeight = FontWeight.SemiBold),
+    titleSmall = Typography().titleSmall.copy(fontFamily = Estedad, fontWeight = FontWeight.SemiBold),
+    bodyLarge = Typography().bodyLarge.copy(fontFamily = Estedad),
+    bodyMedium = Typography().bodyMedium.copy(fontFamily = Estedad),
+    bodySmall = Typography().bodySmall.copy(fontFamily = Estedad),
+    labelLarge = Typography().labelLarge.copy(fontFamily = Estedad, fontWeight = FontWeight.SemiBold),
+    labelMedium = Typography().labelMedium.copy(fontFamily = Estedad, fontWeight = FontWeight.Medium),
+    labelSmall = Typography().labelSmall.copy(fontFamily = Estedad, fontWeight = FontWeight.Medium)
+)
+
+private val HardwareShapes = Shapes(
+    extraSmall = RoundedCornerShape(8.dp),
+    small = RoundedCornerShape(12.dp),
+    medium = RoundedCornerShape(17.dp),
+    large = RoundedCornerShape(23.dp),
+    extraLarge = RoundedCornerShape(29.dp)
 )
 
 private val HardwareColorScheme = darkColorScheme(
@@ -44,7 +73,8 @@ private val HardwareColorScheme = darkColorScheme(
 fun HardwareShenasTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = HardwareColorScheme,
-        typography = Typography(defaultFontFamily = Estedad),
+        typography = HardwareTypography,
+        shapes = HardwareShapes,
         content = content
     )
 }
