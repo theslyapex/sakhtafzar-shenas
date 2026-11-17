@@ -7,7 +7,7 @@
 > POWERED BY ALISHAMS DIGITAL STUDIO
 
 ## وضعیت توسعه
-نسخه فعلی، اسکلت اولیه پروژه است. داشبورد و جمع‌آوری اطلاعات پایه دستگاه پیاده‌سازی شده‌اند و ماژول‌های تخصصی در مراحل بعدی توسعه اضافه می‌شوند.
+داشبورد و ماژول‌های تشخیص سخت‌افزار، پایش سنسورها، GPU، عملکرد CPU و RAM، بنچمارک آزمایشی، باتری، نمایشگر، شبکه و مشخصات دوربین‌ها در حال توسعه هستند.
 
 ## فناوری‌ها
 - Kotlin
@@ -29,3 +29,11 @@
 - Multi-touch test that records the maximum simultaneous pointer count observed.
 
 These checks are diagnostic aids. Pixel defects and color accuracy require visual inspection or external measurement; the app does not claim automatic pixel detection or colorimeter-grade calibration.
+
+
+## Camera diagnostics
+
+- Reads Camera2 metadata for each camera exposed by Android: facing, hardware support level, sensor pixel-array dimensions, reported focal lengths and apertures, physical sensor size, flash, autofocus, optical/video stabilization modes, and supported capabilities.
+- Lists representative JPEG photo and MediaRecorder video output sizes when the device reports them.
+- Metadata-only: no camera preview, photo, or video is captured, and the screen does not request the CAMERA runtime permission.
+- Camera metadata and output sizes are manufacturer-reported capabilities. Missing values are shown as unavailable rather than inferred.

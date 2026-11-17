@@ -61,6 +61,7 @@ fun HardwareShenasApp() {
     var showBattery by remember { mutableStateOf(false) }
     var showScreenDiagnostics by remember { mutableStateOf(false) }
     var showConnectivity by remember { mutableStateOf(false) }
+    var showCameraDiagnostics by remember { mutableStateOf(false) }
     val snapshot = remember { DeviceInfoReader(context).readSnapshot() }
     val details = remember { HardwareDetailsReader(context).read() }
     val usedRam = (details.memory.totalBytes - details.memory.availableBytes).coerceAtLeast(0L)
@@ -89,6 +90,8 @@ fun HardwareShenasApp() {
             ScreenDiagnosticsScreen(onBack = { showScreenDiagnostics = false }, modifier = Modifier.padding(padding))
         } else if (showConnectivity) {
             ConnectivityDiagnosticsScreen(onBack = { showConnectivity = false }, modifier = Modifier.padding(padding))
+        } else if (showCameraDiagnostics) {
+            CameraDiagnosticsScreen(onBack = { showCameraDiagnostics = false }, modifier = Modifier.padding(padding))
         } else {
         LazyColumn(
             modifier = Modifier
@@ -140,6 +143,9 @@ fun HardwareShenasApp() {
                     }
                     TextButton(onClick = { showConnectivity = true }) {
                         Text("بررسی ارتباطات و شبکه", color = CyanAccent, fontWeight = FontWeight.SemiBold)
+                    }
+                    TextButton(onClick = { showCameraDiagnostics = true }) {
+                        Text("بررسی تخصصی دوربین‌ها", color = CyanAccent, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
