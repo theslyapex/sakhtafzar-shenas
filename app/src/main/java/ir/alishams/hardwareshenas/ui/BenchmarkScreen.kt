@@ -225,7 +225,7 @@ private suspend fun runMemoryTest(durationMillis: Long): Double = withContext(Di
     var checksum = 0
     while (System.nanoTime() < deadline) {
         System.arraycopy(source, 0, destination, 0, source.size)
-        checksum = checksum xor destination[(bytesCopied.toInt() and (source.size - 1))]
+        checksum = checksum xor (destination[(bytesCopied.toInt() and (source.size - 1))].toInt() and 0xFF)
         bytesCopied += source.size.toLong() * 2L
         currentCoroutineContext().ensureActive()
     }
