@@ -6,6 +6,11 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.text.TextDirection
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -74,7 +79,14 @@ fun HardwareShenasTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = HardwareColorScheme,
         typography = HardwareTypography,
-        shapes = HardwareShapes,
-        content = content
-    )
+        shapes = HardwareShapes
+    ) {
+        CompositionLocalProvider(
+            LocalLayoutDirection provides LayoutDirection.Rtl,
+            LocalTextStyle provides MaterialTheme.typography.bodyMedium.copy(
+                textDirection = TextDirection.ContentOrRtl
+            ),
+            content = content
+        )
+    }
 }
