@@ -65,7 +65,7 @@ fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             colors = CardDefaults.cardColors(containerColor = SurfaceDark)
         ) {
             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Icon(Icons.Rounded.Business, null, tint = CyanAccent, modifier = Modifier.height(34.dp))
+                Icon(Icons.Rounded.Language, null, tint = CyanAccent, modifier = Modifier.height(34.dp))
                 Text("استودیو دیجیتال علی شمس", color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Text(
