@@ -57,6 +57,7 @@ fun HardwareShenasApp() {
     var showSensors by remember { mutableStateOf(false) }
     var showGpu by remember { mutableStateOf(false) }
     var showPerformance by remember { mutableStateOf(false) }
+    var showBenchmark by remember { mutableStateOf(false) }
     val snapshot = remember { DeviceInfoReader(context).readSnapshot() }
     val details = remember { HardwareDetailsReader(context).read() }
     val usedRam = (details.memory.totalBytes - details.memory.availableBytes).coerceAtLeast(0L)
@@ -77,6 +78,8 @@ fun HardwareShenasApp() {
             GpuMonitorScreen(onBack = { showGpu = false }, modifier = Modifier.padding(padding))
         } else if (showPerformance) {
             PerformanceMonitorScreen(onBack = { showPerformance = false }, modifier = Modifier.padding(padding))
+        } else if (showBenchmark) {
+            BenchmarkScreen(onBack = { showBenchmark = false }, modifier = Modifier.padding(padding))
         } else {
         LazyColumn(
             modifier = Modifier
@@ -116,6 +119,9 @@ fun HardwareShenasApp() {
                     }
                     TextButton(onClick = { showPerformance = true }) {
                         Text("پایش زنده CPU و RAM", color = CyanAccent, fontWeight = FontWeight.SemiBold)
+                    }
+                    TextButton(onClick = { showBenchmark = true }) {
+                        Text("اجرای بنچمارک سخت‌افزار", color = CyanAccent, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
