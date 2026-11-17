@@ -224,7 +224,7 @@ private fun readCameraReports(context: Context): List<CameraReport> {
                     else -> "نامشخص"
                 }
                 val af = c.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
-                    ?.mapNotNull { mode ->
+                    ?.toList()?.mapNotNull { mode ->
                         when (mode) {
                             CameraMetadata.CONTROL_AF_MODE_OFF -> "خاموش"
                             CameraMetadata.CONTROL_AF_MODE_AUTO -> "خودکار"
@@ -242,7 +242,7 @@ private fun readCameraReports(context: Context): List<CameraReport> {
                     ?.map { if (it == CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON) "فعال" else "غیرفعال" }
                     ?.distinct()?.joinToString("، ") ?: "گزارش نشده"
                 val caps = c.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
-                    ?.mapNotNull { capability ->
+                    ?.toList()?.mapNotNull { capability ->
                         when (capability) {
                             CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE -> "سازگاری پایه"
                             CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR -> "کنترل دستی حسگر"
