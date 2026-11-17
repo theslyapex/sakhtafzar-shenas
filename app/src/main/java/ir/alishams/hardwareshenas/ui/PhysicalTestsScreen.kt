@@ -244,18 +244,26 @@ private fun runMicTest(context: Context, scope: kotlinx.coroutines.CoroutineScop
     }
 }
 
-private fun vibrate(context: Context): String = try {
-    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
-    } else @Suppress("DEPRECATION") (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
-    if (!vibrator.hasVibrator()) "موتور ویبره شناسایی نشد"
-    else {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(350, VibrationEffect.DEFAULT_AMPLITUDE))
+private fun vibrate(context: Context): String {
+    return try {
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
         } else {
             @Suppress("DEPRECATION")
-            vibrator.vibrate(350)
+            (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
         }
-        "فرمان لرزش ارسال شد. عملکرد ویبره را بررسی کن."
+        if (!vibrator.hasVibrator()) {
+            "موتور ویبره شناسایی نشد"
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(350, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(350)
+            }
+            "فرمان لرزش ارسال شد. عملکرد ویبره را بررسی کن."
+        }
+    } catch (e: Exception) {
+        "اجرای آزمون ویبره ناموفق بود: ${e.javaClass.simpleName}"
     }
-} 
+}
