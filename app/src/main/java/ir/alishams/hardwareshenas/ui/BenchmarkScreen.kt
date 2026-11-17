@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -57,7 +59,7 @@ fun BenchmarkScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     var error by remember { mutableStateOf<String?>(null) }
 
     Column(
-        modifier = modifier.fillMaxSize().background(Midnight).padding(horizontal = 18.dp, vertical = 18.dp),
+        modifier = modifier.fillMaxSize().background(Midnight).verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         HardwarePageTopBar(onBack)
