@@ -22,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import ir.alishams.hardwareshenas.ui.theme.Midnight
 import ir.alishams.hardwareshenas.ui.theme.SurfaceDark
@@ -32,20 +34,25 @@ private data class StorageVolumeInfo(val path: String, val totalBytes: Long, val
 
 @Composable
 fun StorageDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
-    val volumes = remember {
+    val context = LocalContext.current
+    val volumes = remember(context) {
         buildList {
             val internalPath = Environment.getDataDirectory().absolutePath
             runCatching {
                 val stat = StatFs(internalPath)
                 add(StorageVolumeInfo(internalPath, stat.totalBytes, stat.availableBytes, false))
             }
-            Environment.getExternalStorageDirectory()?.let { directory ->
-                val path = directory.absolutePath
-                if (path != internalPath) runCatching {
-                    val stat = StatFs(path)
-                    add(StorageVolumeInfo(path, stat.totalBytes, stat.availableBytes, Environment.isExternalStorageRemovable()))
+            // Emulated public storage is an alias of internal storage, not a second disk.
+            context.getExternalFilesDirs(null).filterNotNull()
+                .filter { runCatching { Environment.isExternalStorageRemovable(it) }.getOrDefault(false) }
+                .distinctBy { it.absolutePath.substringBefore("/Android/") }
+                .forEach { directory ->
+                    runCatching {
+                        val root = directory.absolutePath.substringBefore("/Android/")
+                        val stat = StatFs(directory.absolutePath)
+                        add(StorageVolumeInfo(root, stat.totalBytes, stat.availableBytes, true))
+                    }
                 }
-            }
         }
     }
     Column(
@@ -67,8 +74,9 @@ fun StorageDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
                     Text(if (index == 0) "حافظه داخلی دستگاه" else "فضای ذخیره‌سازی اضافی",
                         color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold)
-                    Text("${formatBytes(used)} از ${formatBytes(volume.totalBytes)}",
-                        color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.headlineSmall)
+                    Text("\u2066${formatBytes(used)}\u2069 از \u2066${formatBytes(volume.totalBytes)}\u2069",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.headlineSmall.copy(textDirection = TextDirection.Content))
                     androidx.compose.foundation.layout.Box(Modifier.fillMaxWidth().height(11.dp)
                         .background(androidx.compose.ui.graphics.Color(0xFF1A2638), RoundedCornerShape(8.dp))) {
                         androidx.compose.foundation.layout.Box(Modifier.fillMaxWidth(percent.coerceIn(0f, 1f))
@@ -92,7 +100,9 @@ fun StorageDiagnosticsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
 private fun StorageRow(label: String, value: String) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, color = TextSecondary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-        Text(value, color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodySmall,
+        val hasLtrData = value.any { it.isDigit() || it.toString() == "/" || (it.isLetter() && it.code < 128) }
+        Text(value, color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodySmall.copy(textDirection = if (hasLtrData) TextDirection.Ltr else TextDirection.Content),
             fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
     }
 }
