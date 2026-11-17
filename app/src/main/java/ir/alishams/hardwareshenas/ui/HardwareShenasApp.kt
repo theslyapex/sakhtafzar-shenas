@@ -27,8 +27,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -50,6 +54,7 @@ private data class DashboardModule(val title: String, val subtitle: String, val 
 @Composable
 fun HardwareShenasApp() {
     val context = LocalContext.current
+    var showSensors by remember { mutableStateOf(false) }
     val snapshot = remember { DeviceInfoReader(context).readSnapshot() }
     val details = remember { HardwareDetailsReader(context).read() }
     val usedRam = (details.memory.totalBytes - details.memory.availableBytes).coerceAtLeast(0L)
@@ -64,6 +69,9 @@ fun HardwareShenasApp() {
     )
 
     Scaffold(containerColor = Midnight) { padding ->
+        if (showSensors) {
+            SensorMonitorScreen(onBack = { showSensors = false }, modifier = Modifier.padding(padding))
+        } else {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -92,6 +100,11 @@ fun HardwareShenasApp() {
                 }
             }
             item { DeviceHero(snapshot) }
+            item {
+                TextButton(onClick = { showSensors = true }) {
+                    Text("مشاهده پایش زنده سنسورها", color = CyanAccent, fontWeight = FontWeight.SemiBold)
+                }
+            }
             item {
                 Column {
                     Text("نمای کلی سخت‌افزار", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
@@ -144,6 +157,7 @@ fun HardwareShenasApp() {
                     style = MaterialTheme.typography.labelSmall
                 )
             }
+        }
         }
     }
 }
