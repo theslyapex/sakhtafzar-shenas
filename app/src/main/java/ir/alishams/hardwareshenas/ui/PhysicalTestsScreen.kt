@@ -190,26 +190,51 @@ private fun createEjectTrack(): AudioTrack? {
 
 private fun playTone(): String {
     val sampleRate = 44100
-    val duration = 1.5
-    val count = (sampleRate * duration).toInt()
-    val samples = ShortArray(count) { i ->
-        (sin(2.0 * PI * 440.0 * i / sampleRate) * Short.MAX_VALUE * 0.22).toInt().toShort()
+    val samples = ShortArray((sampleRate * 2)) { i ->
+        (sin(2.0 * PI * 440.0 * i / sampleRate) * Short.MAX_VALUE * 0.35).toInt().toShort()
     }
+    var track: AudioTrack? = null
     return try {
-        val track = AudioTrack.Builder()
-            .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
-            .setAudioFormat(AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                .setSampleRate(sampleRate).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
-            .setBufferSizeInBytes(samples.size * 2)
-            .setTransferMode(AudioTrack.MODE_STATIC).build()
-        track.write(samples, 0, samples.size)
-        track.play()
-        Thread.sleep((duration * 1000).toLong() + 150)
-        track.stop()
-        track.release()
-        "پخش آزمایشی تمام شد. خروجی صدا را بررسی کن."
-    } catch (e: Exception) { "پخش صدا ناموفق بود: ${e.javaClass.simpleName}" }
+        val attributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            .build()
+        val format = AudioFormat.Builder()
+            .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+            .setSampleRate(sampleRate)
+            .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+            .build()
+        val stereo = ShortArray(samples.size * 2)
+        for (i in samples.indices) {
+            stereo[i * 2] = samples[i]
+            stereo[i * 2 + 1] = samples[i]
+        }
+        track = AudioTrack.Builder()
+            .setAudioAttributes(attributes)
+            .setAudioFormat(format)
+            .setBufferSizeInBytes(stereo.size * 2)
+            .setTransferMode(AudioTrack.MODE_STATIC)
+            .build()
+        val audio = track
+        if (audio.state != AudioTrack.STATE_INITIALIZED) error("AudioTrack initialization failed")
+        val written = audio.write(stereo, 0, stereo.size)
+        if (written != stereo.size) error("AudioTrack write failed: $written")
+        audio.setVolume(1.0f)
+        audio.play()
+        val expectedFrames = samples.size
+        val deadline = System.currentTimeMillis() + 4000
+        while (audio.playbackHeadPosition < expectedFrames && System.currentTimeMillis() < deadline) {
+            Thread.sleep(25)
+        }
+        val played = audio.playbackHeadPosition
+        if (played <= 0) "پخش آغاز نشد. صدای رسانه و خروجی بلندگو را بررسی کن."
+        else "سیگنال آزمایشی پخش شد. اگر صدایی نشنیدی، صدای رسانه، حالت بی‌صدا و مسیر خروجی صدا را بررسی کن."
+    } catch (e: Exception) {
+        "پخش صدا ناموفق بود: ${e.javaClass.simpleName}"
+    } finally {
+        runCatching { track?.stop() }
+        runCatching { track?.release() }
+    }
 }
 
 private fun runMicTest(context: Context, scope: kotlinx.coroutines.CoroutineScope,
