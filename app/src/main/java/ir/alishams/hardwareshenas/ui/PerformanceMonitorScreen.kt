@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.PowerManager
+import android.os.Process
+import android.os.SystemClock
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +53,7 @@ import java.util.Locale
 private data class CpuCounters(val total: Long, val idle: Long)
 private data class PerformanceSnapshot(
     val cpuPercent: Float?,
+    val cpuSource: String,
     val usedRamBytes: Long,
     val totalRamBytes: Long,
     val availableRamBytes: Long,
@@ -69,6 +72,8 @@ fun PerformanceMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         var previous = readCpuCounters()
+        var previousAppCpuMs = Process.getElapsedCpuTime()
+        var previousElapsedMs = SystemClock.elapsedRealtime()
         while (true) {
             val memory = ActivityManager.MemoryInfo()
             activityManager.getMemoryInfo(memory)
@@ -79,12 +84,22 @@ fun PerformanceMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
                 if (totalDelta > 0) ((totalDelta - idleDelta).toFloat() / totalDelta * 100f).coerceIn(0f, 100f) else null
             } else null
             previous = current ?: previous
+            val elapsedNow = SystemClock.elapsedRealtime()
+            val appCpuNow = Process.getElapsedCpuTime()
+            val elapsedDelta = (elapsedNow - previousElapsedMs).coerceAtLeast(1L)
+            val appCpuDelta = (appCpuNow - previousAppCpuMs).coerceAtLeast(0L)
+            val appUsage = (appCpuDelta.toFloat() / (elapsedDelta * Runtime.getRuntime().availableProcessors().coerceAtLeast(1)) * 100f).coerceIn(0f, 100f)
+            previousElapsedMs = elapsedNow
+            previousAppCpuMs = appCpuNow
+            val finalUsage = usage ?: appUsage
+            val source = if (usage != null) "کل پردازنده" else "مصرف خود برنامه"
             val batteryIntent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
             val batteryTemp = batteryIntent?.getIntExtra("temperature", -1)?.takeIf { it > 0 }?.div(10f)
             val thermal = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) powerManager.currentThermalStatus else null
             val frequency = readCurrentCpuFrequency()
             snapshot.value = PerformanceSnapshot(
-                cpuPercent = usage,
+                cpuPercent = finalUsage,
+                cpuSource = source,
                 usedRamBytes = (memory.totalMem - memory.availMem).coerceAtLeast(0L),
                 totalRamBytes = memory.totalMem,
                 availableRamBytes = memory.availMem,
@@ -92,8 +107,8 @@ fun PerformanceMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
                 thermalStatus = thermal,
                 batteryTemperatureC = batteryTemp
             )
-            if (usage != null) {
-                cpuHistory.add(usage)
+            if (finalUsage >= 0f) {
+                cpuHistory.add(finalUsage)
                 while (cpuHistory.size > 60) cpuHistory.removeAt(0)
             }
             delay(1000)
@@ -116,7 +131,7 @@ fun PerformanceMonitorScreen(onBack: () -> Unit, modifier: Modifier = Modifier) 
             border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color.White.copy(alpha = 0.055f))
         ) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("بار پردازنده", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
+                Text(if (current?.cpuSource == "مصرف خود برنامه") "مصرف CPU برنامه" else "بار کل پردازنده", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                 Text(
                     current?.cpuPercent?.let { String.format(Locale.getDefault(), "%.1f%%", it) } ?: "داده CPU در دسترس نیست",
                     color = CyanAccent,
