@@ -190,48 +190,58 @@ private fun createEjectTrack(): AudioTrack? {
 
 private fun playTone(): String {
     val sampleRate = 44100
-    val samples = ShortArray((sampleRate * 2)) { i ->
-        (sin(2.0 * PI * 440.0 * i / sampleRate) * Short.MAX_VALUE * 0.35).toInt().toShort()
+    val channelMask = AudioFormat.CHANNEL_OUT_MONO
+    val encoding = AudioFormat.ENCODING_PCM_16BIT
+    val minBuffer = AudioTrack.getMinBufferSize(sampleRate, channelMask, encoding)
+    if (minBuffer <= 0) return "تنظیمات خروجی صدا روی این دستگاه پشتیبانی نمی‌شود (کد $minBuffer)"
+
+    val chunkFrames = sampleRate / 4
+    val chunk = ShortArray(chunkFrames) { i ->
+        (sin(2.0 * PI * 440.0 * i / sampleRate) * Short.MAX_VALUE * 0.25).toInt().toShort()
     }
     var track: AudioTrack? = null
     return try {
-        val attributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA)
-            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-            .build()
         val format = AudioFormat.Builder()
-            .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+            .setEncoding(encoding)
             .setSampleRate(sampleRate)
-            .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+            .setChannelMask(channelMask)
             .build()
-        val stereo = ShortArray(samples.size * 2)
-        for (i in samples.indices) {
-            stereo[i * 2] = samples[i]
-            stereo[i * 2 + 1] = samples[i]
-        }
         track = AudioTrack.Builder()
-            .setAudioAttributes(attributes)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            )
             .setAudioFormat(format)
-            .setBufferSizeInBytes(stereo.size * 2)
-            .setTransferMode(AudioTrack.MODE_STATIC)
+            .setBufferSizeInBytes(maxOf(minBuffer, chunk.size * 2) * 2)
+            .setTransferMode(AudioTrack.MODE_STREAM)
             .build()
+
         val audio = track
-        if (audio.state != AudioTrack.STATE_INITIALIZED) error("AudioTrack initialization failed")
-        val written = audio.write(stereo, 0, stereo.size)
-        if (written != stereo.size) error("AudioTrack write failed: $written")
-        audio.setVolume(1.0f)
-        audio.play()
-        val expectedFrames = samples.size
-        val deadline = System.currentTimeMillis() + 4000
-        while (audio.playbackHeadPosition < expectedFrames && System.currentTimeMillis() < deadline) {
-            Thread.sleep(25)
+        if (audio.state != AudioTrack.STATE_INITIALIZED) {
+            error("AudioTrack initialization failed (state=${audio.state})")
         }
-        val played = audio.playbackHeadPosition
-        if (played <= 0) "پخش آغاز نشد. صدای رسانه و خروجی بلندگو را بررسی کن."
-        else "سیگنال آزمایشی پخش شد. اگر صدایی نشنیدی، صدای رسانه، حالت بی‌صدا و مسیر خروجی صدا را بررسی کن."
+
+        audio.play()
+        if (audio.playState != AudioTrack.PLAYSTATE_PLAYING) {
+            error("AudioTrack did not enter PLAYING state")
+        }
+
+        var totalWritten = 0
+        repeat(8) {
+            val written = audio.write(chunk, 0, chunk.size, AudioTrack.WRITE_BLOCKING)
+            if (written < 0) error("AudioTrack write failed (code=$written)")
+            if (written != chunk.size) error("Incomplete audio write ($written/${chunk.size})")
+            totalWritten += written
+        }
+        if (totalWritten == 0) "هیچ داده صوتی پخش نشد."
+        else "سیگنال آزمایشی ارسال شد. لطفاً شنیدن صدای بوق را بررسی کن؛ برنامه نمی‌تواند سلامت فیزیکی بلندگو را تأیید کند."
     } catch (e: Exception) {
-        "پخش صدا ناموفق بود: ${e.javaClass.simpleName}"
+        "پخش صدا ناموفق بود: ${e.javaClass.simpleName}، ${e.message ?: "بدون جزئیات"}"
     } finally {
+        runCatching { track?.pause() }
+        runCatching { track?.flush() }
         runCatching { track?.stop() }
         runCatching { track?.release() }
     }
@@ -272,23 +282,28 @@ private fun runMicTest(context: Context, scope: kotlinx.coroutines.CoroutineScop
 private fun vibrate(context: Context): String {
     return try {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+            val manager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            manager.defaultVibrator
         } else {
             @Suppress("DEPRECATION")
             (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
         }
+
         if (!vibrator.hasVibrator()) {
-            "موتور ویبره شناسایی نشد"
+            "اندروید هیچ موتور ویبره‌ای برای این دستگاه گزارش نکرده است."
         } else {
+            vibrator.cancel()
+            val timings = longArrayOf(0, 180, 120, 260, 120, 420)
+            val amplitudes = intArrayOf(0, 255, 0, 255, 0, 255)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(350, VibrationEffect.DEFAULT_AMPLITUDE))
+                vibrator.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
             } else {
                 @Suppress("DEPRECATION")
-                vibrator.vibrate(350)
+                vibrator.vibrate(timings, -1)
             }
-            "فرمان لرزش ارسال شد. عملکرد ویبره را بررسی کن."
+            "فرمان سه‌مرحله‌ای به سرویس ویبره ارسال شد؛ لرزش واقعی را بررسی کن. اندروید امکان تأیید فیزیکی موتور را نمی‌دهد."
         }
     } catch (e: Exception) {
-        "اجرای آزمون ویبره ناموفق بود: ${e.javaClass.simpleName}"
+        "اجرای آزمون ویبره ناموفق بود: ${e.javaClass.simpleName}، ${e.message ?: "بدون جزئیات"}"
     }
 }
